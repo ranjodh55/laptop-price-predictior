@@ -1,51 +1,48 @@
-# Copyright (c) Streamlit Inc. (2018-2022) Snowflake Inc. (2022)
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
+import numpy as np
 import streamlit as st
-from streamlit.logger import get_logger
+import pickle
 
-LOGGER = get_logger(__name__)
+# load the models
+df = pickle.load(open('df.pkl', 'rb'))
+pipe = pickle.load(open('pipe.pkl', 'rb'))
 
+# title of the page
+st.title('Laptop Price Predictor')
 
-def run():
-    st.set_page_config(
-        page_title="Hello",
-        page_icon="👋",
-    )
+# set different dropdowns
+company = st.selectbox('Brand', np.sort(df['Company'].unique()))
+lp_type = st.selectbox('Type', df['TypeName'].unique())
+ram = st.selectbox('RAM (in GB)', np.sort(df['Ram'].unique()))
+weight = st.number_input('Weight of the laptop')
+touchscreen = st.selectbox('Touchscreen', ['No', 'Yes'])
+ips = st.selectbox('IPS', ['No', 'Yes'])
+resolution = st.selectbox('Screen Resolution',
+                          ['1920x1080', '1366x768', '1600x900', '3840x2160', '3200x1800', '2880x1800', '2560x1600',
+                           '2560x1440', '2304x1440'])
+screen_size = st.number_input('Size of the screen')
+cpu = st.selectbox('CPU', np.sort(df['cpu'].unique()))
+hdd = st.selectbox('HDD (in GB)', np.sort(df['hdd'].unique()))
+ssd = st.selectbox('SSD (in GB)', np.sort(df['ssd'].unique()))
+gpu = st.selectbox('GPU', np.sort(df['gpu'].unique()))
+os = st.selectbox('Operating System', np.sort(df['os'].unique()))
 
-    st.write("# Welcome to Streamlit! 👋")
+if st.button('Predict Price'):
 
-    st.sidebar.success("Select a demo above.")
+    res = resolution.split('x')
+    width = int(res[0])
+    height = int(res[1])
 
-    st.markdown(
-        """
-        Streamlit is an open-source app framework built specifically for
-        Machine Learning and Data Science projects.
-        **👈 Select a demo from the sidebar** to see some examples
-        of what Streamlit can do!
-        ### Want to learn more?
-        - Check out [streamlit.io](https://streamlit.io)
-        - Jump into our [documentation](https://docs.streamlit.io)
-        - Ask a question in our [community
-          forums](https://discuss.streamlit.io)
-        ### See more complex demos
-        - Use a neural net to [analyze the Udacity Self-driving Car Image
-          Dataset](https://github.com/streamlit/demo-self-driving)
-        - Explore a [New York City rideshare dataset](https://github.com/streamlit/demo-uber-nyc-pickups)
-    """
-    )
+    ppi = np.sqrt((width ** 2) + (height ** 2)) / weight
+    if touchscreen == 'Yes':
+        touchscreen = 1
+    else:
+        touchscreen = 0
 
-
-if __name__ == "__main__":
-    run()
+    if ips == 'Yes':
+        ips = 1
+    else:
+        ips = 0
+    query = np.array([company, lp_type, ram, weight, ips, touchscreen, ppi, cpu, hdd, ssd, gpu, os], dtype=object)
+    query = query.reshape(1, 12)
+    pred = np.exp(pipe.predict(query))
+    st.title(pred)
