@@ -32,17 +32,20 @@ if st.button('Predict Price'):
     width = int(res[0])
     height = int(res[1])
 
-    ppi = np.sqrt((width ** 2) + (height ** 2)) / weight
-    if touchscreen == 'Yes':
-        touchscreen = 1
+    if weight == 0.00:
+        st.warning('Weight cannot be 0', icon="⚠️")
     else:
-        touchscreen = 0
+        ppi = np.sqrt((width ** 2) + (height ** 2)) / weight
+        if touchscreen == 'Yes':
+            touchscreen = 1
+        else:
+            touchscreen = 0
 
-    if ips == 'Yes':
-        ips = 1
-    else:
-        ips = 0
-    query = np.array([company, lp_type, ram, weight, ips, touchscreen, ppi, cpu, hdd, ssd, gpu, os], dtype=object)
-    query = query.reshape(1, 12)
-    pred = np.exp(pipe.predict(query))
-    st.title(pred)
+        if ips == 'Yes':
+            ips = 1
+        else:
+            ips = 0
+        query = np.array([company, lp_type, ram, weight, ips, touchscreen, ppi, cpu, hdd, ssd, gpu, os], dtype=object)
+        query = query.reshape(1, 12)
+        pred = np.exp(pipe.predict(query))
+        st.title(pred)
