@@ -48,4 +48,5 @@ if st.button('Predict Price'):
         query = np.array([company, lp_type, ram, weight, ips, touchscreen, ppi, cpu, hdd, ssd, gpu, os], dtype=object)
         query = query.reshape(1, 12)
         pred = np.exp(pipe.predict(query))
-        st.title(pred)
+        price = round(pred[0], 2)
+        st.header(f'The price of the laptop should be around Rs.{price}')
