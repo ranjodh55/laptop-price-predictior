@@ -3,4 +3,4 @@ numpy
 pandas
 pydeck
 streamlit
-scikit-learn
+scikit-learn==1.2.2
