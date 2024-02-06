@@ -19,7 +19,8 @@ ips = st.selectbox('IPS', ['No', 'Yes'])
 resolution = st.selectbox('Screen Resolution',
                           ['1920x1080', '1366x768', '1600x900', '3840x2160', '3200x1800', '2880x1800', '2560x1600',
                            '2560x1440', '2304x1440'])
-screen_size = st.number_input('Size of the screen')
+screen_size = st.selectbox('Screen Size',
+                      [11.6, 12, 13.3, 14, 15.6, 17])
 cpu = st.selectbox('CPU', np.sort(df['cpu'].unique()))
 hdd = st.selectbox('HDD (in GB)', np.sort(df['hdd'].unique()))
 ssd = st.selectbox('SSD (in GB)', np.sort(df['ssd'].unique()))
@@ -32,8 +33,8 @@ if st.button('Predict Price'):
     width = int(res[0])
     height = int(res[1])
 
-    if weight == 0.00:
-        st.warning('Weight cannot be 0', icon="⚠️")
+    if weight == 0.00 or weight < 1.00:
+        st.warning('Weight cannot be 0 or less than 1Kg', icon="⚠️")
     else:
         ppi = np.sqrt((width ** 2) + (height ** 2)) / weight
         if touchscreen == 'Yes':
